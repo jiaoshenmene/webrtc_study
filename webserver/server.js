@@ -39,7 +39,7 @@ app.use(express.static('./public'));
 
 //http server
 var http_server = http.createServer(app);
-http_server.listen(80, '0.0.0.0');
+http_server.listen(4480, '0.0.0.0');
 
 var options = {
     key: fs.readFileSync('./cert/2_www.mcyyx.com.key'),
@@ -90,7 +90,7 @@ io.sockets.on('connection', (socket) => {
 
 });
 
-https_server.listen(443, '0.0.0.0');
+https_server.listen(4443, '0.0.0.0');
 
 
 
