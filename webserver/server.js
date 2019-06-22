@@ -1,18 +1,15 @@
 'use strict'
 
+var log4js = require('log4js');
 var http = require('http');
 var https = require('https');
 var fs = require('fs');
-
-var express = require('express');
-
-var serveIndex = require('serve-index');
-
-//socket.io
 var socketIo = require('socket.io');
 
-//
-var log4js = require('log4js');
+var express = require('express');
+var serveIndex = require('serve-index');
+
+var USERCOUNT = 3;
 
 log4js.configure({
     appenders: {
@@ -38,66 +35,63 @@ var logger = log4js.getLogger();
 var app = express();
 app.use(serveIndex('./public'));
 app.use(express.static('./public'));
+
+
+//http server
 var http_server = http.createServer(app);
-http_server.listen(4481, '0.0.0.0');
+http_server.listen(80, '0.0.0.0');
 
 var options = {
     key: fs.readFileSync('./cert/2_www.mcyyx.com.key'),
     cert: fs.readFileSync('./cert/1_www.mcyyx.com_bundle.crt'),
 }
 
+//https server
 var https_server = https.createServer(options, app);
 var io = socketIo.listen(https_server);
-var sockio = socketIo.listen(http_server);
 
 io.sockets.on('connection', (socket) => {
+
     socket.on('message', (room, data) => {
-        socket.to(room).emit('message', room, socket.id, data)//房间内所有人,除自己外
+        socket.to(room).emit('message', room, data);
     });
 
-    //该函数应该加锁
     socket.on('join', (room) => {
-
         socket.join(room);
-
         var myRoom = io.sockets.adapter.rooms[room];
-        var users = Object.keys(myRoom.sockets).length;
+        var users = (myRoom) ? Object.keys(myRoom.sockets).length : 0;
+        logger.debug('the user number of room is: ' + users);
 
-        logger.log('the number of user in room is: ' + users);
-
-        //在这里可以控制进入房间的人数,现在一个房间最多 2个人
-        //为了便于客户端控制，如果是多人的话，应该将目前房间里
-        //人的个数当做数据下发下去。
-        if (users < 3) {
-            socket.emit('joined', room, socket.id);
+        if (users < USERCOUNT) {
+            socket.emit('joined', room, socket.id); //发给除自己之外的房间内的所有人
             if (users > 1) {
-                socket.to(room).emit('otherjoin', room);//除自己之外
+                socket.to(room).emit('otherjoin', room, socket.id);
             }
+
         } else {
             socket.leave(room);
             socket.emit('full', room, socket.id);
         }
-        //socket.to(room).emit('joined', room, socket.id);//除自己之外
-        //io.in(room).emit('joined', room, socket.id)//房间内所有人
-        //socket.broadcast.emit('joined', room, socket.id);//除自己，全部站点
+        //socket.emit('joined', room, socket.id); //发给自己
+        //socket.broadcast.emit('joined', room, socket.id); //发给除自己之外的这个节点上的所有人
+        //io.in(room).emit('joined', room, socket.id); //发给房间内的所有人
     });
 
     socket.on('leave', (room) => {
         var myRoom = io.sockets.adapter.rooms[room];
-        var users = Object.keys(myRoom.sockets).length;
-        //users - 1;
-
-        logger.log('the number of user in room is: ' + (users - 1));
-
-        socket.leave(room);
-        socket.to(room).emit('bye', room, socket.id)//房间内所有人,除自己外
+        var users = (myRoom) ? Object.keys(myRoom.sockets).length : 0;
+        logger.debug('the user number of room is: ' + (users - 1));
+        //socket.emit('leaved', room, socket.id);
+        //socket.broadcast.emit('leaved', room, socket.id);
+        socket.to(room).emit('bye', room, socket.id);
         socket.emit('leaved', room, socket.id);
-        //socket.to(room).emit('joined', room, socket.id);//除自己之外
-        //io.in(room).emit('joined', room, socket.id)//房间内所有人
-        //socket.broadcast.emit('joined', room, socket.id);//除自己，全部站点
+        //io.in(room).emit('leaved', room, socket.id);
     });
 
 });
 
+https_server.listen(443, '0.0.0.0');
 
-https_server.listen(4443, '0.0.0.0');
+
+
+
