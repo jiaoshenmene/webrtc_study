@@ -5,24 +5,10 @@
  *  that can be found in the LICENSE file in the root of the source
  *  tree.
  */
-
 button {
-  margin: 10px 20px 25px 0;
+  margin: 0 20px 25px 0;
   vertical-align: top;
   width: 134px;
-}
-
-table {
-  margin: 200px (50% - 100) 0 0; 
-}
-
-textarea {
-  color: #444;
-  font-size: 0.9em;
-  font-weight: 300;
-  height: 20.0em;
-  padding: 5px;
-  width: calc(100% - 10px);
 }
 
 div#getUserMedia {
@@ -53,18 +39,6 @@ div.output {
   width: 270px;
 }
 
-div#preview {
-  border-bottom: 1px solid #eee;
-  margin: 0 0 1em 0;
-  padding: 0 0 0.5em 0;
-}
-
-div#preview > div {
-  display: inline-block;
-  vertical-align: top;
-  width: calc(50% - 12px);
-}
-
 section#statistics div {
   display: inline-block;
   font-family: 'Inconsolata', 'Courier New', monospace;
@@ -80,10 +54,22 @@ section#constraints > div {
   margin: 0 0 20px 0;
 }
 
+section#video > div {
+  display: inline-block;
+  margin: 0 20px 0 0;
+  vertical-align: top;
+  width: calc(50% - 22px);
+}
+
+section#video > div div {
+  font-size: 0.9em;
+  margin: 0 0 0.5em 0;
+  width: 320px;
+}
+
 h2 {
   margin: 0 0 1em 0;
 }
-
 
 section#constraints label {
   display: inline-block;
@@ -95,12 +81,16 @@ section {
   padding: 0 0 15px 0;
 }
 
+section#video {
+  width: calc(100% + 20px);
+}
+
 video {
-  background: #222;
-  margin: 0 0 0 0;
-  --width: 100%;
+  --width: 90%;
+  display: inline-block;
   width: var(--width);
-  height: 225px;
+  height: calc(var(--width) * 0.75);
+  margin: 0 0 10px 0;
 }
 
 @media screen and (max-width: 720px) {
@@ -119,4 +109,9 @@ video {
     width: calc(50% - 14px);
   }
 
+  video {
+    display: inline-block;
+    width: var(--width);
+    height: 96px;
+  }
 }
