@@ -39,11 +39,11 @@ app.use(express.static('./public'));
 
 //http server
 var http_server = http.createServer(app);
-http_server.listen(80, '0.0.0.0');
+http_server.listen(280, '0.0.0.0');
 
 var options = {
-    key: fs.readFileSync('./cert/2394334_www.mancangyun.com.key'),
-    cert: fs.readFileSync('./cert/2394334_www.mancangyun.com.pem'),
+    key: fs.readFileSync('./cert/2_www.mcyyx.com.key'),
+    cert: fs.readFileSync('./cert/1_www.mcyyx.com_bundle.crt'),
 }
 
 //https server
@@ -132,7 +132,7 @@ io.sockets.on('connection', (socket) => {
 
 });
 
-https_server.listen(443, '0.0.0.0');
+https_server.listen(2443, '0.0.0.0');
 
 
 
